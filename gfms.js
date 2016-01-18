@@ -142,10 +142,8 @@ app.get('*', function(req, res, next) {
     if(stat.isDirectory()) {
         try {
           fs.accessSync(path.join(dir, argv.default), fs.F_OK);
-          return res.redirect(301, './README.md');
-        } catch (e) {
-          console.log(e.stack)
-        }
+          return res.redirect(307, argv.default);
+        } catch (e) {}
 
         var files = _.chain(fs.readdirSync(dir)).filter(function(v) {
             var stat = fs.statSync(dir + '/' + v);
@@ -223,7 +221,7 @@ app.get('*', function(req, res, next) {
 
 function renderFile(file, api, cb) { // cb(err, res)
     var contents = fs.readFileSync(file, 'utf8');
-    var func = renderWithShowdown;
+    var func = api ? renderWithGithub : renderWithShowdown;
     func(contents, _x(cb, true, cb));
 }
 
@@ -361,8 +359,8 @@ function startCssUpdater(interval) {
     }), cssCheckInterval);
 }
 
-if(!argv.a && !argv.n)
-    argv.b = true;
+//if(!argv.a && !argv.n)
+//    argv.b = true;
 
 _x(cb, false, function() {
     loadStyles(_x(cb, true, function() {
