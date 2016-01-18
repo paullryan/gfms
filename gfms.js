@@ -3,6 +3,7 @@ var laeh = require('laeh2').leanStacks(true);
 var _e = laeh._e;
 var _x = laeh._x;
 
+var path = require('path');
 var express = require('express');
 var stylus = require('stylus');
 var nib = require('nib');
@@ -66,6 +67,7 @@ var argv = optimist
     .boolean('n')
     .describe('n', 'Disable usage of Github API when the doc is manually reloaded.')
     .alias('n', 'no-api-on-reload')
+    .describe('default', 'Default file to load from dir.')
     .argv;
 
 var pub = __dirname + '/public';
@@ -138,6 +140,12 @@ app.get('*', function(req, res, next) {
     }
 
     if(stat.isDirectory()) {
+        try {
+          fs.accessSync(path.join(dir, argv.default), fs.F_OK);
+          return res.redirect(301, './README.md');
+        } catch (e) {
+          console.log(e.stack)
+        }
 
         var files = _.chain(fs.readdirSync(dir)).filter(function(v) {
             var stat = fs.statSync(dir + '/' + v);
