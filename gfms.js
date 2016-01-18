@@ -142,9 +142,7 @@ app.get('*', function(req, res, next) {
             title: basename(dir)
         });
     } else if(query.raw === "true") {
-        var content = fs.readFileSync(dir);
-        res.writeHead('200');
-        res.end(content,'binary');
+      res.sendFile(dir);
     } else if(is_markdown(dir)) {
 
         if(!watched[dir]) {
@@ -196,19 +194,19 @@ app.get('*', function(req, res, next) {
             });
         }));
 
+    } else {
+      res.sendFile(dir);
     }
-    else
-        return next();
 });
 
 function renderFile(file, api, cb) { // cb(err, res)
     var contents = fs.readFileSync(file, 'utf8');
-    var func = api ? renderWithGithub : renderWithShowdown;
+    var func = renderWithShowdown;
     func(contents, _x(cb, true, cb));
 }
 
 function renderImageFile(file, api, cb) { // cb(err, res)
-    var html = '<div class="image js-image"><span class="border-wrap"><img src="' + file + '?raw=true"></span></div>';
+    var html = '<div class="image js-image"><span class="border-wrap"><a href="' + file + '?raw=true"><img src="' + file + '?raw=true"></a></span></div>';
     cb(null, html);
 }
 
@@ -362,4 +360,3 @@ _x(cb, false, function() {
         startCssUpdater(cssUpdateInterval);
     }));
 })();
-

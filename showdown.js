@@ -75,7 +75,7 @@
 // **************************************************
 
 // **************************************************
-// GFM Code Block support (w/o Syntax Coloring as of yet) 
+// GFM Code Block support (w/o Syntax Coloring as of yet)
 // added by Juraj Vitko
 //
 // Modifications are tagged with "ypocat"
@@ -738,7 +738,8 @@ var writeImageTag = function(wholeMatch,m1,m2,m3,m4,m5,m6,m7) {
 
     alt_text = alt_text.replace(/"/g,"&quot;");
     url = escapeCharacters(url,"*_");
-    var result = "<img src=\"" + url + "\" alt=\"" + alt_text + "\"";
+    // #GFM - pryan - added raw flag to handle inline images
+    var result = "<img src=\"" + url + "?raw=true\" alt=\"" + alt_text + "\"";
 
     // attacklab: Markdown.pl adds empty title attributes to images.
     // Replicate this bug.
