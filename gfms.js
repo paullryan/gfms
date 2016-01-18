@@ -9,8 +9,7 @@ var nib = require('nib');
 var app = express();
 var http = require('http');
 var server = http.createServer(app);
-var markdown = //require('github-flavored-markdown').parse;
-    require('./showdown.js').parse;
+var marked = require('marked');
 var _ = require('underscore');
 var fs = require('fs');
 var ews = require('ws');
@@ -29,6 +28,24 @@ var lastCssUpdate = 0;
 var updatingCss;
 
 var pkgJson = require('./package.json');
+
+var mRenderer = new marked.Renderer();
+marked.setOptions({
+  renderer: mRenderer,
+  gfm: true,
+  highlight: function (code) {
+    return require('highlight.js').highlightAuto(code).value;
+  }
+});
+
+mRenderer.image = function(href, title, text) {
+  var out = '<img src="' + href + '?raw=true" alt="' + text + '"';
+  if (title) {
+    out += ' title="' + title + '"';
+  }
+  out += '>';
+  return out;
+}
 
 function cb(err, msg) {
     console.log(err ? (err.stack || err) : msg || 'done');
@@ -78,10 +95,7 @@ if(process.env.NODE_ENV === 'development') {
 }
 
 app.use(wss.middleware(express));
-// app.use(express.favicon());
-// app.use(app.router);
 app.use(express.static(pub));
-// app.use(express.errorHandler({ dump: true, stack: true }));
 
 
 function basename(fn) {
@@ -211,7 +225,7 @@ function renderImageFile(file, api, cb) { // cb(err, res)
 }
 
 function renderWithShowdown(contents, cb) { // cb(err, res)
-    var res = markdown(contents);
+    var res = marked(contents);
     cb(null, res);
 }
 
